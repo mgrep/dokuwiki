@@ -9,7 +9,7 @@
 if(!defined('DOKU_INC')) die('meh.');
 if(!defined('NL')) define('NL',"\n");
 if (!defined('SEC_EDIT_PATTERN')) {
-    define('SEC_EDIT_PATTERN', '#<!-- EDIT({.*}) -->#');
+    define('SEC_EDIT_PATTERN', '#<!-- EDIT({.*?}) -->#');
 }
 
 
@@ -118,7 +118,8 @@ function html_secedit($text,$show=true){
  * @triggers HTML_SECEDIT_BUTTON
  */
 function html_secedit_button($matches){
-    $data = json_decode($matches[1], true);
+    $json = htmlspecialchars_decode($matches[1], ENT_QUOTES);
+    $data = json_decode($json, true);
     if ($data == NULL) {
         return;
     }
@@ -314,6 +315,7 @@ function html_draft(){
     $form = new Doku_Form(array('id' => 'dw__editform'));
     $form->addHidden('id', $ID);
     $form->addHidden('date', $draft['date']);
+    $form->addHidden('wikitext', $text);
     $form->addElement(form_makeOpenTag('div', array('id'=>'draft__status')));
     $form->addElement($lang['draftdate'].' '. dformat(filemtime($INFO['draft'])));
     $form->addElement(form_makeCloseTag('div'));
@@ -1803,7 +1805,7 @@ function html_edit(){
         $form->addElement(form_makeOpenTag('div', array('class'=>'editButtons')));
         $form->addElement(form_makeButton('submit', 'save', $lang['btn_save'], array('id'=>'edbtn__save', 'accesskey'=>'s', 'tabindex'=>'4')));
         $form->addElement(form_makeButton('submit', 'preview', $lang['btn_preview'], array('id'=>'edbtn__preview', 'accesskey'=>'p', 'tabindex'=>'5')));
-        $form->addElement(form_makeButton('submit', 'draftdel', $lang['btn_cancel'], array('tabindex'=>'6')));
+        $form->addElement(form_makeButton('submit', 'cancel', $lang['btn_cancel'], array('tabindex'=>'6')));
         $form->addElement(form_makeCloseTag('div'));
         $form->addElement(form_makeOpenTag('div', array('class'=>'summary')));
         $form->addElement(form_makeTextField('summary', $SUM, $lang['summary'], 'edit__summary', 'nowrap', array('size'=>'50', 'tabindex'=>'2')));

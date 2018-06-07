@@ -77,8 +77,19 @@ class Doku_Renderer_xhtml extends Doku_Renderer {
      */
     public function startSectionEdit($start, $data) {
         if (!is_array($data)) {
-            msg('startSectionEdit: $data is NOT an array!', -1);
-            return '';
+            msg(
+                sprintf(
+                    'startSectionEdit: $data "%s" is NOT an array! One of your plugins needs an update.',
+                    hsc((string) $data)
+                ), -1
+            );
+
+            // @deprecated 2018-04-14, backward compatibility
+            $args = func_get_args();
+            $data = array();
+            if(isset($args[1])) $data['target'] = $args[1];
+            if(isset($args[2])) $data['name'] = $args[2];
+            if(isset($args[3])) $data['hid'] = $args[3];
         }
         $data['secid'] = ++$this->lastsecid;
         $data['start'] = $start;
@@ -103,7 +114,7 @@ class Doku_Renderer_xhtml extends Doku_Renderer {
         }
         $data['range'] = $data['start'].'-'.(is_null($end) ? '' : $end);
         unset($data['start']);
-        $this->doc .= '<!-- EDIT'.json_encode ($data).' -->';
+        $this->doc .= '<!-- EDIT'.hsc(json_encode ($data)).' -->';
     }
 
     /**
@@ -622,9 +633,10 @@ class Doku_Renderer_xhtml extends Doku_Renderer {
      * @param string $text     text to show
      * @param string $language programming language to use for syntax highlighting
      * @param string $filename file path label
+     * @param array  $options  assoziative array with additional geshi options
      */
-    function file($text, $language = null, $filename = null) {
-        $this->_highlight('file', $text, $language, $filename);
+    function file($text, $language = null, $filename = null, $options=null) {
+        $this->_highlight('file', $text, $language, $filename, $options);
     }
 
     /**
@@ -633,9 +645,10 @@ class Doku_Renderer_xhtml extends Doku_Renderer {
      * @param string $text     text to show
      * @param string $language programming language to use for syntax highlighting
      * @param string $filename file path label
+     * @param array  $options  assoziative array with additional geshi options
      */
-    function code($text, $language = null, $filename = null) {
-        $this->_highlight('code', $text, $language, $filename);
+    function code($text, $language = null, $filename = null, $options=null) {
+        $this->_highlight('code', $text, $language, $filename, $options);
     }
 
     /**
@@ -646,8 +659,9 @@ class Doku_Renderer_xhtml extends Doku_Renderer {
      * @param string $text     text to show
      * @param string $language programming language to use for syntax highlighting
      * @param string $filename file path label
+     * @param array  $options  assoziative array with additional geshi options
      */
-    function _highlight($type, $text, $language = null, $filename = null) {
+    function _highlight($type, $text, $language = null, $filename = null, $options = null) {
         global $ID;
         global $lang;
         global $INPUT;
@@ -683,7 +697,7 @@ class Doku_Renderer_xhtml extends Doku_Renderer {
             $class = 'code'; //we always need the code class to make the syntax highlighting apply
             if($type != 'code') $class .= ' '.$type;
 
-            $this->doc .= "<pre class=\"$class $language\">".p_xhtml_cached_geshi($text, $language, '').'</pre>'.DOKU_LF;
+            $this->doc .= "<pre class=\"$class $language\">".p_xhtml_cached_geshi($text, $language, '', $options).'</pre>'.DOKU_LF;
         }
 
         if($filename) {

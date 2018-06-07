@@ -800,9 +800,17 @@ function tpl_youarehere($sep = null, $return = false) {
 
     // print current page, skipping start page, skipping for namespace index
     resolve_pageid('', $page, $exists);
-    if(isset($page) && $page == $part.$parts[$i]) return true;
+    if (isset($page) && $page == $part.$parts[$i]) {
+        if($return) return $out;
+        print $out;
+        return true;
+    }
     $page = $part.$parts[$i];
-    if($page == $conf['start']) return true;
+    if($page == $conf['start']) {
+        if($return) return $out;
+        print $out;
+        return true;
+    }
     $out .= $sep;
     $out .= tpl_pagelink($page, null, true);
     if($return) return $out;
@@ -1161,7 +1169,7 @@ function tpl_indexerWebBug() {
     global $ID;
 
     $p           = array();
-    $p['src']    = DOKU_BASE.'lib/exe/indexer.php?id='.rawurlencode($ID).
+    $p['src']    = DOKU_BASE.'lib/exe/taskrunner.php?id='.rawurlencode($ID).
         '&'.time();
     $p['width']  = 2; //no more 1x1 px image because we live in times of ad blockers...
     $p['height'] = 1;
