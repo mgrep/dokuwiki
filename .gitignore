@@ -90,3 +90,4 @@ vendor/splitbrain/php-cli/screenshot*
 vendor/splitbrain/php-cli/generate-api.sh
 vendor/splitbrain/php-cli/apigen.neon
 
+conf/dokuwiki.php
